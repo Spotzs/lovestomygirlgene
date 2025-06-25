@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>TE AMO GENESIS</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #grid {
+      line-height: 0;
+    }
+    .cell {
+      width: 8px;
+      height: 8px;
+      margin: 1px;
+      float: left;
+      background: #222;
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="grid"></div>
+  <canvas id="measure" style="display:none;"></canvas>
+  <script>
+    window.onload = () => {
+      const cols = 48, rows = 24;
+      const cellW = 8 + 2;  // 8px ancho + 2px margen
+      const cellH = 8 + 2;  // 8px alto + 2px margen
+
+      // Preparamos canvas
+      const canvas = document.getElementById("measure");
+      canvas.width = cols * cellW;
+      canvas.height = rows * cellH;
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = "white";
+      ctx.textAlign = "center";
+
+      ctx.font = "bold 120px monospace";
+      const text1 = "TE AMO";
+      const xCenter = canvas.width / 2;
+      const y1 = canvas.height / 3;
+      ctx.fillText(text1, xCenter, y1);
+
+      ctx.font = "bold 100px monospace";
+      const text2 = "GENESIS";
+      const y2 = canvas.height * 2 / 3 + 20;
+      ctx.fillText(text2, xCenter, y2);
+
+      const grid = document.getElementById("grid");
+      for (let i = 0; i < cols * rows; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        grid.appendChild(cell);
+      }
+      grid.style.width = `${cols * cellW}px`;
+
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      const cells = grid.children;
+      const toAnimate = [];
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const px = Math.floor(c * cellW + cellW / 2);
+          const py = Math.floor(r * cellH + cellH / 2);
+          const idx = (py * canvas.width + px) * 4;
+          if (imgData[idx] > 128) {
+            toAnimate.push(r * cols + c);
+          }
+        }
+      }
+
+      toAnimate.forEach((cellIdx, k) => {
+        const cell = cells[cellIdx];
+        setTimeout(() => {
+          let step = 0;
+          const timer = setInterval(() => {
+            step++;
+            cell.style.opacity = step / 10;
+            cell.style.background = "#F39";
+            if (step === 10) clearInterval(timer);
+          }, 25);
+        }, k * 20);
+      });
+    };
+  </script>
+</body>
+</html>
